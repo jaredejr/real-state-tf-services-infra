@@ -23,7 +23,7 @@ resource "aws_ecs_task_definition" "srv_cad_imoveis" {
   container_definitions = jsonencode([
     {
       name      = local.srv_cad_imoveis_service_name
-      image     = var.srv_cad_imoveis_image_uri
+      image     = "${aws_ecr_repository.srv_cad_imoveis.repository_url}:${var.srv_cad_imoveis_image_tag}"
       essential = true
       portMappings = [
         {
@@ -42,8 +42,12 @@ resource "aws_ecs_task_definition" "srv_cad_imoveis" {
       }
       # Removida a variável do DynamoDB, adicionadas as do MongoDB Atlas
       environment = [
+        { name = "SPRING_PROFILES_ACTIVE", value = var.environment },
         { name = "MONGODB_ATLAS_CONNECTION_STRING", value = var.mongodb_atlas_connection_string },
-        { name = "MONGODB_DATABASE_NAME", value = var.mongodb_database_name_cad_advertisement }
+        { name = "DB_ADVERTISEMENT_NAME", value = var.mongodb_database_name_cad_advertisement }, # Alinhado com o nome da app
+        { name = "JKS_URI", value = var.jks_uri }, # Adicionado JKS_URI
+        { name = "ROOT_LOG_LEVEL", value = var.root_log_level },
+        { name = "SPRING_LOG_LEVEL", value = var.spring_log_level }
       ]
       # healthCheck = {
       #   command     = ["CMD-SHELL", "curl -f http://localhost:8081/actuator/health || exit 1"]

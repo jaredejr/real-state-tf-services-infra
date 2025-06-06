@@ -23,7 +23,7 @@ resource "aws_ecs_task_definition" "srv_cad_company" {
   container_definitions = jsonencode([
     {
       name      = local.srv_cad_company_service_name
-      image     = var.srv_cad_company_image_uri # Nova variável
+      image     = "${aws_ecr_repository.srv_cad_company.repository_url}:${var.srv_cad_company_image_tag}"
       essential = true
       portMappings = [
         {
@@ -42,7 +42,12 @@ resource "aws_ecs_task_definition" "srv_cad_company" {
       }
       environment = [
         { name = "SPRING_PROFILES_ACTIVE", value = var.environment },
-        { name = "DYNAMODB_TABLE_NAME_COMPANY", value = var.dynamodb_db_cad_company_table_name } # Para acessar a tabela DynamoDB
+        { name = "DYNAMODB_CAD_COMPANY_TABLE", value = var.dynamodb_db_cad_company_table_name }, # Alinhado com o nome da app
+        { name = "AWS_REGION", value = var.aws_region }, # Para o SDK AWS
+        # AWS_ACCESS_KEY_ID e AWS_SECRET_ACCESS_KEY NÃO DEVEM SER USADOS AQUI. A role da tarefa fornecerá as credenciais.
+        { name = "JKS_URI", value = var.jks_uri }, # Adicionado JKS_URI
+        { name = "ROOT_LOG_LEVEL", value = var.root_log_level },
+        { name = "SPRING_LOG_LEVEL", value = var.spring_log_level }
       ]
       # healthCheck = {
       #   command     = ["CMD-SHELL", "curl -f http://localhost:${local.srv_cad_company_port}/actuator/health || exit 1"]

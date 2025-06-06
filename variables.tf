@@ -55,14 +55,16 @@ variable "srv_cad_usuarios_image_tag" {
   default     = "latest" # Ou um valor padrão apropriado
 }
 
-variable "srv_cad_imoveis_image_uri" {
-  description = "URI da imagem Docker para o serviço srv-cad-imoveis"
+variable "srv_cad_imoveis_image_tag" {
+  description = "Tag da imagem Docker para o serviço srv-cad-imoveis (ex: latest, v1.0.0, ou hash do commit)"
   type        = string
+  default     = "latest"
 }
 
-variable "srv_cad_company_image_uri" {
-  description = "URI da imagem Docker para o serviço srv-cad-company"
+variable "srv_cad_company_image_tag" {
+  description = "Tag da imagem Docker para o serviço srv-cad-company (ex: latest, v1.0.0, ou hash do commit)"
   type        = string
+  default     = "latest"
 }
 
 variable "log_retention_days" {
@@ -89,13 +91,26 @@ variable "mongodb_database_name_cad_advertisement" {
   type        = string
 }
 
-variable "mongodb_atlas_connection_string_usuarios" {
-  description = "String de conexão para o MongoDB Atlas usado pelo srv-cad-usuarios."
-  type        = string
-  sensitive   = true
-}
-
 variable "mongodb_database_name_usuarios" {
   description = "Nome do banco de dados no MongoDB Atlas para o srv-cad-usuarios."
   type        = string
+}
+
+variable "jks_uri" {
+  description = "URI para o arquivo JKS, se utilizado pelos serviços."
+  type        = string
+  default     = null # Torna opcional, fornecer via secret se necessário
+  sensitive   = true # JKS pode conter chaves privadas
+}
+
+variable "root_log_level" {
+  description = "Nível de log raiz para as aplicações Spring Boot (ex: INFO, DEBUG)."
+  type        = string
+  default     = "INFO"
+}
+
+variable "spring_log_level" {
+  description = "Nível de log específico para pacotes Spring (ex: INFO, DEBUG)."
+  type        = string
+  default     = "INFO"
 }
