@@ -55,7 +55,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: "~1.8.0" # Ou a versão do Terraform CLI que você deseja usar (ex: ~1.12.1)
+          terraform_version: "~1.12.1" # Ou a versão do Terraform CLI que você deseja usar (ex: ~1.12.1)
 
       - name: Terraform Init
         run: terraform init
