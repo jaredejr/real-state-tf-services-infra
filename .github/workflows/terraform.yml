@@ -1,0 +1,86 @@
+name: 'Terraform CI/CD - Services Infra'
+
+on:
+  push:
+    branches:
+      - master # Executa em push para a branch master
+  pull_request:
+    branches:
+      - master # Executa em pull requests para a branch master
+
+permissions:
+  id-token: write   # Necessário para autenticação OIDC com AWS
+  contents: read    # Necessário para fazer checkout do código
+  pull-requests: write # Necessário para comentar o plano no PR (opcional)
+
+jobs:
+  terraform:
+    name: 'Terraform Plan/Apply'
+    runs-on: ubuntu-latest
+    env:
+      AWS_REGION: "us-east-1" # Defina sua região AWS
+      # Variáveis do Terraform - Forneça os valores via GitHub Secrets
+      # Segredos para conexão com MongoDB
+      TF_VAR_mongodb_atlas_connection_string: ${{ secrets.MONGODB_ATLAS_CONNECTION_STRING }}
+      TF_VAR_mongodb_database_name_cad_advertisement: ${{ secrets.MONGODB_DATABASE_NAME_CAD_ADVERTISEMENT }}
+      TF_VAR_mongodb_database_name_usuarios: ${{ secrets.MONGODB_DATABASE_NAME_USUARIOS }}
+
+      # Segredo para o nome da tabela DynamoDB (se não for fixo ou derivado de outra forma)
+      TF_VAR_dynamodb_db_cad_company_table_name: ${{ secrets.DYNAMODB_DB_CAD_COMPANY_TABLE_NAME }}
+
+      # Tags das imagens Docker (assumindo que os repositórios ECR são gerenciados por este Terraform)
+      # Se você estiver fornecendo URIs completas, ajuste as variáveis e segredos.
+      TF_VAR_srv_cad_usuarios_image_tag: ${{ secrets.SRV_CAD_USUARIOS_IMAGE_TAG || 'latest' }}
+      TF_VAR_srv_cad_imoveis_image_tag: ${{ secrets.SRV_CAD_IMOVEIS_IMAGE_TAG || 'latest' }} # Adicione este segredo
+      TF_VAR_srv_cad_company_image_tag: ${{ secrets.SRV_CAD_COMPANY_IMAGE_TAG || 'latest' }} # Adicione este segredo
+
+      # Novas variáveis de ambiente
+      TF_VAR_jks_uri: ${{ secrets.JKS_URI }} # Secret para JKS URI
+      TF_VAR_root_log_level: ${{ vars.ROOT_LOG_LEVEL || 'INFO' }} # Usando variável do GitHub
+      TF_VAR_spring_log_level: ${{ vars.SPRING_LOG_LEVEL || 'INFO' }} # Usando variável do GitHub
+
+      # Outras variáveis podem ser definidas aqui ou via secrets se necessário
+      # TF_VAR_environment: "dev" # Pode ser fixo ou vir de um secret/input do workflow
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }} # ARN do seu IAM Role para GitHub Actions
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "~1.8.0" # Ou a versão do Terraform CLI que você deseja usar (ex: ~1.12.1)
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -no-color -input=false -out=tfplan
+
+      - name: Comment PR with Terraform Plan
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7 # Atualizado para v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = `#### Terraform Plan 📖\n\n<details><summary>Show Plan</summary>\n\n\`\`\`terraform\n${{ steps.plan.outputs.stdout }}\n\`\`\`\n\n</details>`;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            });
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+        run: terraform apply -auto-approve -input=false tfplan

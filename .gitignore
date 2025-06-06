@@ -9,6 +9,8 @@
 crash.log
 crash.*.log
 
+plan
+
 # Exclude all .tfvars files, to prevent accidental credential exposure.
 # If you use tfvars files, ensure they are not sensitive or use a more specific pattern.
 *.tfvars

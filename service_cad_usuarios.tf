@@ -46,8 +46,11 @@ resource "aws_ecs_task_definition" "srv_cad_usuarios" {
       # Alterado para usar MongoDB
       environment = [
         { name = "SPRING_PROFILES_ACTIVE", value = var.environment }, # Exemplo de outra variável
-        { name = "MONGODB_ATLAS_CONNECTION_STRING", value = var.mongodb_atlas_connection_string_usuarios },
-        { name = "MONGODB_DATABASE_NAME", value = var.mongodb_database_name_usuarios }
+        { name = "MONGODB_ATLAS_CONNECTION_STRING", value = var.mongodb_atlas_connection_string }, # Usando a string de conexão comum
+        { name = "DB_USER_NAME", value = var.mongodb_database_name_usuarios }, # Alinhado com o nome da app
+        { name = "ROOT_LOG_LEVEL", value = var.root_log_level },
+        { name = "SPRING_LOG_LEVEL", value = var.spring_log_level }
+        # Se JKS_URI for específico para este serviço e não global, adicione aqui. Se for global e opcional, pode ser omitido se var.jks_uri for null.
       ],
       healthCheck = {
         command     = ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health || exit 1"]
