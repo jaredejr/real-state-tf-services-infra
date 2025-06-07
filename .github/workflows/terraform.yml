@@ -2,11 +2,11 @@ name: 'Terraform CI/CD - Services Infra'
 
 on:
   push:
-    branches:
-      - master # Executa em push para a branch master
+    branches-ignore:
+      - development # Não rodar em pushes para a branch development
   pull_request:
     branches:
-      - master # Executa em pull requests para a branch master
+      - master # Rodar em PRs para a branch master
 
 permissions:
   id-token: write   # Necessário para autenticação OIDC com AWS
