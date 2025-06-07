@@ -50,8 +50,7 @@ resource "aws_ecs_task_definition" "srv_cad_imoveis" {
         { name = "SPRING_LOG_LEVEL", value = var.spring_log_level }
       ]
       healthCheck = {
-        # Assumindo context-path /srv-cad-imoveis e endpoint Actuator /actuator/health
-        command     = ["CMD-SHELL", "curl -f http://localhost:${local.srv_cad_imoveis_port}/srv-cad-imoveis/actuator/health || exit 1"]
+        command     = ["CMD-SHELL", "curl -f http://localhost:${local.srv_cad_imoveis_port}/srv-cad-imoveis/health || exit 1"]
         interval    = 30
         timeout     = 5
         retries     = 3
@@ -70,8 +69,7 @@ resource "aws_lb_target_group" "srv_cad_imoveis" {
   vpc_id      = aws_vpc.main.id
   target_type = "ip"
   health_check {
-    # Assumindo context-path /srv-cad-imoveis e endpoint Actuator /actuator/health
-    path                = "/srv-cad-imoveis/actuator/health"
+    path                = "/srv-cad-imoveis/health"
     protocol            = "HTTP"
     interval            = 30
     timeout             = 10
