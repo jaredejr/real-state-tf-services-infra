@@ -91,3 +91,33 @@ resource "aws_iam_role_policy_attachment" "ecs_srv_cad_company_dynamodb_access" 
   role       = aws_iam_role.ecs_srv_cad_company_task_role.name
   policy_arn = aws_iam_policy.ecs_dynamodb_cad_company_access.arn
 }
+
+# Política para permitir ECS Exec (SSM Session Manager)
+data "aws_iam_policy_document" "ecs_exec_policy_document" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "ssmmessages:CreateControlChannel",
+      "ssmmessages:CreateDataChannel",
+      "ssmmessages:OpenControlChannel",
+      "ssmmessages:OpenDataChannel"
+    ]
+    resources = ["*"] # Necessário para ECS Exec
+  }
+}
+
+resource "aws_iam_policy" "ecs_exec_policy" {
+  name        = "${var.project_name}-ecs-exec-policy-${var.environment}"
+  description = "Permite que as tarefas ECS usem o ECS Exec via SSM Session Manager"
+  policy      = data.aws_iam_policy_document.ecs_exec_policy_document.json
+}
+
+resource "aws_iam_role_policy_attachment" "generic_task_role_ecs_exec" {
+  role       = aws_iam_role.ecs_generic_task_role.name
+  policy_arn = aws_iam_policy.ecs_exec_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "company_task_role_ecs_exec" {
+  role       = aws_iam_role.ecs_srv_cad_company_task_role.name
+  policy_arn = aws_iam_policy.ecs_exec_policy.arn
+}

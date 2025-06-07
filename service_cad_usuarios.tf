@@ -72,7 +72,7 @@ resource "aws_lb_target_group" "srv_cad_usuarios" {
   vpc_id      = aws_vpc.main.id
   target_type = "ip" # Para Fargate
   health_check {
-    path                = "/srv-cad-usuarios/health"
+    path                = "/health"
     protocol            = "HTTP"
     interval            = 30
     timeout             = 10
