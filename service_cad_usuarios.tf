@@ -15,8 +15,8 @@ resource "aws_ecs_task_definition" "srv_cad_usuarios" {
   family                   = "${local.srv_cad_usuarios_service_name}-${var.environment}"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  cpu                      = "1024" # 1 vCPU
-  memory                   = "2048" # 2 GB RAM (Mínimo para 1 vCPU)
+  cpu                      = "256" # 1 vCPU
+  memory                   = "512" # 2 GB RAM (Mínimo para 1 vCPU)
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   task_role_arn            = aws_iam_role.ecs_generic_task_role.arn # Use uma role mais específica se necessário
 
@@ -106,7 +106,7 @@ resource "aws_ecs_service" "srv_cad_usuarios" {
   task_definition = aws_ecs_task_definition.srv_cad_usuarios.arn
   desired_count   = 1 # Número desejado de tarefas
   launch_type     = "FARGATE"
-
+  health_check_grace_period_seconds = 120
   network_configuration {
     subnets         = aws_subnet.private[*].id # Executa tarefas nas subnets privadas
     security_groups = [aws_security_group.ecs_tasks_sg.id]
