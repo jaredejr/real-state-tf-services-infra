@@ -53,7 +53,6 @@ resource "aws_ecs_task_definition" "srv_cad_usuarios" {
         # Se JKS_URI for específico para este serviço e não global, adicione aqui. Se for global e opcional, pode ser omitido se var.jks_uri for null.
       ],
       healthCheck = {
-        # Assumindo context-path /srv-cad-usuarios e endpoint Actuator /actuator/health
         command     = ["CMD-SHELL", "curl -f http://localhost:${local.srv_cad_usuarios_port}/srv-cad-usuarios/health || exit 1"]
         interval    = 30
         timeout     = 5
@@ -73,7 +72,6 @@ resource "aws_lb_target_group" "srv_cad_usuarios" {
   vpc_id      = aws_vpc.main.id
   target_type = "ip" # Para Fargate
   health_check {
-    # Assumindo context-path /srv-cad-usuarios e endpoint Actuator /actuator/health
     path                = "/srv-cad-usuarios/health"
     protocol            = "HTTP"
     interval            = 30
