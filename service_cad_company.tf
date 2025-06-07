@@ -102,6 +102,7 @@ resource "aws_ecs_service" "srv_cad_company" {
   cluster         = aws_ecs_cluster.main.id
   task_definition = aws_ecs_task_definition.srv_cad_company.arn
   desired_count   = 1
+  health_check_grace_period_seconds = 120
   launch_type     = "FARGATE"
   network_configuration {
     subnets         = aws_subnet.private[*].id
