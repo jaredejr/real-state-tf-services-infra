@@ -54,7 +54,7 @@ resource "aws_ecs_task_definition" "srv_cad_usuarios" {
       ],
       healthCheck = {
         # Assumindo context-path /srv-cad-usuarios e endpoint Actuator /actuator/health
-        command     = ["CMD-SHELL", "curl -f http://localhost:${local.srv_cad_usuarios_port}/srv-cad-usuarios/actuator/health || exit 1"]
+        command     = ["CMD-SHELL", "curl -f http://localhost:${local.srv_cad_usuarios_port}/srv-cad-usuarios/health || exit 1"]
         interval    = 30
         timeout     = 5
         retries     = 3
@@ -74,7 +74,7 @@ resource "aws_lb_target_group" "srv_cad_usuarios" {
   target_type = "ip" # Para Fargate
   health_check {
     # Assumindo context-path /srv-cad-usuarios e endpoint Actuator /actuator/health
-    path                = "/srv-cad-usuarios/actuator/health"
+    path                = "/srv-cad-usuarios/health"
     protocol            = "HTTP"
     interval            = 30
     timeout             = 10
