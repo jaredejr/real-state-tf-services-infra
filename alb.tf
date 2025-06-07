@@ -7,6 +7,12 @@ resource "aws_lb" "main" {
 
   enable_deletion_protection = false # Mude para true em produção
 
+  access_logs {
+    bucket  = aws_s3_bucket.alb_logs.bucket
+    prefix  = "alb-access-logs" # Opcional: um prefixo para organizar os logs dentro do bucket
+    enabled = true
+  }
+
   tags = local.common_tags
 }
 

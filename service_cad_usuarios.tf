@@ -15,8 +15,8 @@ resource "aws_ecs_task_definition" "srv_cad_usuarios" {
   family                   = "${local.srv_cad_usuarios_service_name}-${var.environment}"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  cpu                      = "256" # 0.25 vCPU
-  memory                   = "512" # 0.5 GB RAM
+  cpu                      = "1024" # 1 vCPU
+  memory                   = "2048" # 2 GB RAM (Mínimo para 1 vCPU)
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   task_role_arn            = aws_iam_role.ecs_generic_task_role.arn # Use uma role mais específica se necessário
 
