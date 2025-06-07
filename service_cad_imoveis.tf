@@ -49,10 +49,14 @@ resource "aws_ecs_task_definition" "srv_cad_imoveis" {
         { name = "ROOT_LOG_LEVEL", value = var.root_log_level },
         { name = "SPRING_LOG_LEVEL", value = var.spring_log_level }
       ]
-      # healthCheck = {
-      #   command     = ["CMD-SHELL", "curl -f http://localhost:8081/actuator/health || exit 1"]
-      #   # ... outros parâmetros do health check
-      # }
+      healthCheck = {
+        # Assumindo context-path /srv-cad-imoveis e endpoint Actuator /actuator/health
+        command     = ["CMD-SHELL", "curl -f http://localhost:${local.srv_cad_imoveis_port}/srv-cad-imoveis/actuator/health || exit 1"]
+        interval    = 30
+        timeout     = 5
+        retries     = 3
+        startPeriod = 60
+      }
     }
   ])
   tags = local.common_tags
@@ -66,9 +70,13 @@ resource "aws_lb_target_group" "srv_cad_imoveis" {
   vpc_id      = aws_vpc.main.id
   target_type = "ip"
   health_check {
-    path     = "/actuator/health" # Ajuste o path
-    protocol = "HTTP"
-    # ... outros parâmetros do health check
+    # Assumindo context-path /srv-cad-imoveis e endpoint Actuator /actuator/health
+    path                = "/srv-cad-imoveis/actuator/health"
+    protocol            = "HTTP"
+    interval            = 30
+    timeout             = 10
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
   }
   tags = local.common_tags
 }
