@@ -71,10 +71,10 @@ resource "aws_lb_target_group" "srv_cad_company" {
   health_check {
     path                = "/srv-cad-company/health"
     protocol            = "HTTP"
-    interval            = 30
-    timeout             = 10
+    interval            = 75
+    timeout             = 60
     healthy_threshold   = 2
-    unhealthy_threshold = 2
+    unhealthy_threshold = 3
   }
   tags = local.common_tags
 }
