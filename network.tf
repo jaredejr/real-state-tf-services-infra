@@ -114,12 +114,37 @@ resource "aws_security_group" "ecs_tasks_sg" {
   # Permite tráfego de entrada do ALB.
   # O tráfego para os containers virá do ALB, geralmente em portas altas.
   # O mapeamento de porta do ALB para o container será configurado no Target Group.
+  # Regra anterior (mais permissiva):
+  # ingress {
+  #   from_port       = 0 # Todas as portas
+  #   to_port         = 0 # Todas as portas
+  #   protocol        = "tcp"
+  #   security_groups = [aws_security_group.alb_sg.id] # Permite tráfego apenas do ALB SG
+  # }
+
+  # Regras de ingresso mais específicas para cada porta de serviço vinda do ALB
   ingress {
-    from_port       = 0 # Todas as portas
-    to_port         = 0 # Todas as portas
+    from_port       = 8080 # srv-cad-usuarios
+    to_port         = 8080
     protocol        = "tcp"
-    security_groups = [aws_security_group.alb_sg.id] # Permite tráfego apenas do ALB SG
+    security_groups = [aws_security_group.alb_sg.id]
+    description     = "Allow ALB to srv-cad-usuarios (port 8080)"
   }
+  ingress {
+    from_port       = 8081 # srv-cad-imoveis
+    to_port         = 8081
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb_sg.id]
+    description     = "Allow ALB to srv-cad-imoveis (port 8081)"
+  }
+  ingress {
+    from_port       = 8082 # srv-cad-company
+    to_port         = 8082
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb_sg.id]
+    description     = "Allow ALB to srv-cad-company (port 8082)"
+  }
+  # Adicione mais blocos ingress aqui se você adicionar novos serviços com portas diferentes.
 
   egress {
     from_port   = 0

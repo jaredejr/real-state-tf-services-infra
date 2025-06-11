@@ -114,3 +114,17 @@ variable "spring_log_level" {
   type        = string
   default     = "INFO"
 }
+
+variable "auth_private_key" {
+  description = "Chave privada para autenticação JWT ou similar, em formato Base64 ou PEM."
+  type        = string
+  sensitive   = true
+  # Este valor deve ser fornecido via TF_VAR_auth_private_key ou um arquivo .tfvars seguro
+}
+
+variable "auth_public_key" {
+  description = "Chave pública para autenticação JWT ou similar, em formato Base64 ou PEM."
+  type        = string
+  sensitive   = true
+  # Este valor deve ser fornecido via TF_VAR_auth_public_key ou um arquivo .tfvars seguro
+}
