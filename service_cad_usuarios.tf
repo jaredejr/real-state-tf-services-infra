@@ -74,7 +74,7 @@ resource "aws_lb_target_group" "srv_cad_usuarios" {
   vpc_id      = aws_vpc.main.id
   target_type = "ip" # Para Fargate
   health_check {
-    path                = "/srv-cad-usuarios/healthy"
+    path                = "/srv-cad-usuarios/health" # Alinhar com o endpoint de health da aplicação (ex: @GetMapping("/health"))
     protocol            = "HTTP"
     interval            = 75
     timeout             = 60
@@ -96,7 +96,7 @@ resource "aws_lb_listener_rule" "srv_cad_usuarios" {
 
   condition {
     path_pattern {
-      values = ["/usuarios*"] # Roteia requisições para /usuarios/* para este serviço
+      values = ["/srv-cad-usuarios*"] # Alinhar com o context-path da aplicação
     }
   }
 }

@@ -91,7 +91,7 @@ resource "aws_lb_listener_rule" "srv_cad_company" {
 
   condition {
     path_pattern {
-      values = ["/company*"] # Roteia requisições para /company/*
+      values = ["/srv-cad-company*"] # Roteia requisições para /company/*
     }
   }
 }

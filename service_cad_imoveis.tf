@@ -91,7 +91,7 @@ resource "aws_lb_listener_rule" "srv_cad_imoveis" {
 
   condition {
     path_pattern {
-      values = ["/imoveis*"] # Roteia requisições para /imoveis/*
+      values = ["/srv-cad-imoveis*"] # Roteia requisições para /imoveis/*
     }
   }
 }
