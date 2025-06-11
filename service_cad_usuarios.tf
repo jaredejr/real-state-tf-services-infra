@@ -54,10 +54,10 @@ resource "aws_ecs_task_definition" "srv_cad_usuarios" {
       ],
       healthCheck = {
         command     = ["CMD-SHELL", "curl -f http://localhost:${local.srv_cad_usuarios_port}/srv-cad-usuarios/health || exit 1"]
-        interval    = 30
+        interval    = 45
         timeout     = 5
         retries     = 3
-        startPeriod = 60
+        startPeriod = 120
       }
     }
   ])
@@ -72,7 +72,7 @@ resource "aws_lb_target_group" "srv_cad_usuarios" {
   vpc_id      = aws_vpc.main.id
   target_type = "ip" # Para Fargate
   health_check {
-    path                = "/srv-cad-usuarios/health"
+    path                = "/srv-cad-usuarios/healthy"
     protocol            = "HTTP"
     interval            = 75
     timeout             = 60
@@ -106,7 +106,7 @@ resource "aws_ecs_service" "srv_cad_usuarios" {
   task_definition = aws_ecs_task_definition.srv_cad_usuarios.arn
   desired_count   = 1 # Número desejado de tarefas
   launch_type     = "FARGATE"
-  health_check_grace_period_seconds = 120
+  health_check_grace_period_seconds = 180
   network_configuration {
     subnets         = aws_subnet.private[*].id # Executa tarefas nas subnets privadas
     security_groups = [aws_security_group.ecs_tasks_sg.id]
