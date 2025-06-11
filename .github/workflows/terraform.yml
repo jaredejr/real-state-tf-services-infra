@@ -22,6 +22,10 @@ jobs:
       TF_VAR_mongodb_database_name_cad_advertisement: ${{ secrets.MONGODB_DATABASE_NAME_CAD_ADVERTISEMENT }}
       TF_VAR_mongodb_database_name_usuarios: ${{ secrets.MONGODB_DATABASE_NAME_USUARIOS }}
 
+      # Segredos para chave cliente de teste
+      TF_VAR_auth_private_key: ${{ secrets.AUTH_PRIVATE_KEY_SECRET_NAME }}
+      TF_VAR_auth_public_key: ${{ secrets.AUTH_PUBLIC_KEY_SECRET_NAME }}
+
       # Segredo para o nome da tabela DynamoDB (se não for fixo ou derivado de outra forma)
       TF_VAR_dynamodb_db_cad_company_table_name: ${{ secrets.DYNAMODB_DB_CAD_COMPANY_TABLE_NAME }}
 
