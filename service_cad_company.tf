@@ -71,8 +71,8 @@ resource "aws_lb_target_group" "srv_cad_company" {
   health_check {
     path                = "/srv-cad-company/health"
     protocol            = "HTTP"
-    interval            = 75
-    timeout             = 60
+    interval            = 30
+    timeout             = 10
     healthy_threshold   = 2
     unhealthy_threshold = 3
   }
@@ -114,6 +114,12 @@ resource "aws_ecs_service" "srv_cad_company" {
     container_name   = local.srv_cad_company_service_name
     container_port   = local.srv_cad_company_port
   }
+
+  deployment_circuit_breaker {
+    enable   = true
+    rollback = false # Se a implantação falhar, não reverte (para as tentativas com a versão atual)
+  }
+
   enable_execute_command = true
   tags                   = local.common_tags
 }

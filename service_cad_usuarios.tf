@@ -56,10 +56,10 @@ resource "aws_ecs_task_definition" "srv_cad_usuarios" {
       ],
       healthCheck = {
         command     = ["CMD-SHELL", "curl -f http://localhost:${local.srv_cad_usuarios_port}/srv-cad-usuarios/health || exit 1"]
-        interval    = 45
+        interval    = 30
         timeout     = 5
         retries     = 3
-        startPeriod = 120
+        startPeriod = 60
       }
     }
   ])
@@ -76,8 +76,8 @@ resource "aws_lb_target_group" "srv_cad_usuarios" {
   health_check {
     path                = "/srv-cad-usuarios/health" # Alinhar com o endpoint de health da aplicação (ex: @GetMapping("/health"))
     protocol            = "HTTP"
-    interval            = 75
-    timeout             = 60
+    interval            = 30
+    timeout             = 10
     healthy_threshold   = 2
     unhealthy_threshold = 3
   }
@@ -108,7 +108,7 @@ resource "aws_ecs_service" "srv_cad_usuarios" {
   task_definition = aws_ecs_task_definition.srv_cad_usuarios.arn
   desired_count   = 1 # Número desejado de tarefas
   launch_type     = "FARGATE"
-  health_check_grace_period_seconds = 180
+  health_check_grace_period_seconds = 120
   network_configuration {
     subnets         = aws_subnet.private[*].id # Executa tarefas nas subnets privadas
     security_groups = [aws_security_group.ecs_tasks_sg.id]
@@ -125,6 +125,12 @@ resource "aws_ecs_service" "srv_cad_usuarios" {
   # durante atualizações, pode ser necessário um lifecycle block.
   # Ou garantir que a task definition sempre seja compatível.
   # depends_on = [aws_lb_listener_rule.srv_cad_usuarios] # Garante que a regra do listener exista
+  deployment_circuit_breaker {
+    enable   = true
+    rollback = false # Se a implantação falhar, não reverte (para as tentativas com a versão atual)
+  }
+
+  # Configuração para o controlador de implantação (opcional, mas recomendado para Fargate)
 
   # Habilita ECS Exec (opcional)
   enable_execute_command = true
