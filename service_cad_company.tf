@@ -1,6 +1,6 @@
 locals {
   srv_cad_company_service_name = "srv-cad-company"
-  srv_cad_company_port         = 8082 # Escolha uma porta para este serviço, ex: 8082
+  srv_cad_company_port         = 8080 # Porta que o container srv-cad-company escuta
 }
 
 # Log Group para o serviço
@@ -47,7 +47,7 @@ resource "aws_ecs_task_definition" "srv_cad_company" {
         # AWS_ACCESS_KEY_ID e AWS_SECRET_ACCESS_KEY NÃO DEVEM SER USADOS AQUI. A role da tarefa fornecerá as credenciais.
         { name = "JKS_URI", value = var.jks_uri }, # Adicionado JKS_URI
         { name = "ROOT_LOG_LEVEL", value = var.root_log_level },
-        { name = "SPRING_LOG_LEVEL", value = var.spring_log_level }
+        { name = "SPRING_LOG_LEVEL", value = var.spring_log_level } # Mantido
       ]
       healthCheck = {
         command     = ["CMD-SHELL", "curl -f http://localhost:${local.srv_cad_company_port}/srv-cad-company/health || exit 1"]

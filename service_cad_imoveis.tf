@@ -1,6 +1,6 @@
 locals {
   srv_cad_imoveis_service_name = "srv-cad-imoveis"
-  srv_cad_imoveis_port         = 8081 # Porta que o container srv-cad-imoveis escuta
+  srv_cad_imoveis_port         = 8080 # Porta que o container srv-cad-imoveis escuta
 }
 
 # Log Group para o serviço
