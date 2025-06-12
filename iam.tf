@@ -73,9 +73,9 @@ data "aws_iam_policy_document" "ecs_dynamodb_cad_company_access" {
       "dynamodb:DescribeTable"
     ]
     resources = [
-      "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/${var.dynamodb_db_cad_company_table_name}"
-      # Se você precisar de acesso a índices, adicione-os aqui:
-      # "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/${var.dynamodb_db_cad_company_table_name}/index/*"
+      "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/${var.dynamodb_db_cad_company_table_name}",
+      # Permite acesso a todos os índices da tabela. Para ser mais específico, você pode usar /index/GSI1
+      "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/${var.dynamodb_db_cad_company_table_name}/index/*"
     ]
   }
 }
