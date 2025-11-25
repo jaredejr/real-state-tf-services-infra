@@ -121,6 +121,14 @@ resource "aws_security_group" "ecs_tasks_sg" {
     security_groups = [aws_security_group.alb_sg.id]
     description     = "Allow ALB to ECS tasks on container port 8080"
   }
+
+  ingress {
+    from_port       = 8083 # Porta para o auth-server
+    to_port         = 8083
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb_sg.id]
+    description     = "Allow ALB to auth-server on container port 8083"
+  }
   # Adicione mais blocos ingress aqui se você adicionar novos serviços com portas diferentes.
 
   egress {

@@ -5,5 +5,4 @@ locals {
     ManagedBy   = "Terraform"
   }
 
-  ecs_cluster_name = "${var.project_name}-cluster-${var.environment}"
 }

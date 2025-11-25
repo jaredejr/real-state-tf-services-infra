@@ -42,27 +42,26 @@ variable "availability_zones" {
   default = ["us-east-1a", "us-east-1b"]
 }
 
-variable "srv_cad_usuarios_image_uri" {
-  description = "URI da imagem Docker para o serviço srv-cad-usuarios (ex: account-id.dkr.ecr.region.amazonaws.com/srv-cad-usuarios:latest)"
-  type        = string
-  default     = null # Pode ser removido se você construir a URI dinamicamente
-  # Você precisará fornecer este valor, ex: via TF_VAR_srv_cad_usuarios_image_uri ou um arquivo .tfvars
-}
-
-variable "srv_cad_usuarios_image_tag" {
-  description = "Tag da imagem Docker para o serviço srv-cad-usuarios (ex: latest, v1.0.0, ou hash do commit)"
+variable "srv_cad_users_image_tag" {
+  description = "Tag da imagem Docker para o serviço srv-cad-users (ex: latest, v1.0.0, ou hash do commit)"
   type        = string
   default     = "latest" # Ou um valor padrão apropriado
 }
 
-variable "srv_cad_imoveis_image_tag" {
-  description = "Tag da imagem Docker para o serviço srv-cad-imoveis (ex: latest, v1.0.0, ou hash do commit)"
+variable "srv_cad_advertisements_image_tag" {
+  description = "Tag da imagem Docker para o serviço srv-cad-advertisements (ex: latest, v1.0.0, ou hash do commit)"
   type        = string
   default     = "latest"
 }
 
 variable "srv_cad_company_image_tag" {
   description = "Tag da imagem Docker para o serviço srv-cad-company (ex: latest, v1.0.0, ou hash do commit)"
+  type        = string
+  default     = "latest"
+}
+
+variable "auth_server_image_tag" {
+  description = "Tag da imagem Docker para o serviço auth-server"
   type        = string
   default     = "latest"
 }
@@ -86,21 +85,14 @@ variable "mongodb_atlas_connection_string" {
   # Este valor deve ser fornecido via TF_VAR_mongodb_atlas_connection_string ou um arquivo .tfvars seguro (não commitado)
 }
 
-variable "mongodb_database_name_cad_advertisement" {
-  description = "Nome do banco de dados no MongoDB Atlas para o cadastro de anúncios/imóveis."
+variable "mongodb_database_name_advertisement" {
+  description = "Nome do banco de dados no MongoDB Atlas para o serviço de anúncios."
   type        = string
 }
 
-variable "mongodb_database_name_usuarios" {
-  description = "Nome do banco de dados no MongoDB Atlas para o srv-cad-usuarios."
+variable "mongodb_database_name_users" {
+  description = "Nome do banco de dados no MongoDB Atlas para o serviço de usuários."
   type        = string
-}
-
-variable "jks_uri" {
-  description = "URI para o arquivo JKS, se utilizado pelos serviços."
-  type        = string
-  default     = null # Torna opcional, fornecer via secret se necessário
-  sensitive   = true # JKS pode conter chaves privadas
 }
 
 variable "root_log_level" {
@@ -115,16 +107,21 @@ variable "spring_log_level" {
   default     = "INFO"
 }
 
-variable "auth_private_key" {
-  description = "Chave privada para autenticação JWT ou similar, em formato Base64 ou PEM."
+variable "client_web_secret" {
+  description = "Client secret para o cliente web (ex: frontend)."
   type        = string
   sensitive   = true
-  # Este valor deve ser fornecido via TF_VAR_auth_private_key ou um arquivo .tfvars seguro
 }
 
-variable "auth_public_key" {
-  description = "Chave pública para autenticação JWT ou similar, em formato Base64 ou PEM."
+variable "auth_server_client_secret" {
+  description = "Client secret para o próprio auth-server (client credentials flow)."
   type        = string
   sensitive   = true
-  # Este valor deve ser fornecido via TF_VAR_auth_public_key ou um arquivo .tfvars seguro
+}
+
+variable "jks_uri" {
+  description = "URI para o arquivo JKS, se utilizado pelos serviços."
+  type        = string
+  default     = null # Torna opcional, fornecer via secret se necessário
+  sensitive   = true # JKS pode conter chaves privadas
 }

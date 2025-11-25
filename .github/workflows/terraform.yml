@@ -19,21 +19,18 @@ jobs:
       # Variáveis do Terraform - Forneça os valores via GitHub Secrets
       # Segredos para conexão com MongoDB
       TF_VAR_mongodb_atlas_connection_string: ${{ secrets.MONGODB_ATLAS_CONNECTION_STRING }}
-      TF_VAR_mongodb_database_name_cad_advertisement: ${{ secrets.MONGODB_DATABASE_NAME_CAD_ADVERTISEMENT }}
-      TF_VAR_mongodb_database_name_usuarios: ${{ secrets.MONGODB_DATABASE_NAME_USUARIOS }}
-
-      # Segredos para chave cliente de teste
-      TF_VAR_auth_private_key: ${{ secrets.AUTH_PRIVATE_KEY }}
-      TF_VAR_auth_public_key: ${{ secrets.AUTH_PUBLIC_KEY }}
+      TF_VAR_mongodb_database_name_advertisement: ${{ secrets.MONGODB_DATABASE_NAME_ADVERTISEMENT }}
+      TF_VAR_mongodb_database_name_users: ${{ secrets.MONGODB_DATABASE_NAME_USERS }}
 
       # Segredo para o nome da tabela DynamoDB (se não for fixo ou derivado de outra forma)
       TF_VAR_dynamodb_db_cad_company_table_name: ${{ secrets.DYNAMODB_DB_CAD_COMPANY_TABLE_NAME }}
 
       # Tags das imagens Docker (assumindo que os repositórios ECR são gerenciados por este Terraform)
       # Se você estiver fornecendo URIs completas, ajuste as variáveis e segredos.
-      TF_VAR_srv_cad_usuarios_image_tag: ${{ secrets.SRV_CAD_USUARIOS_IMAGE_TAG || 'latest' }}
-      TF_VAR_srv_cad_imoveis_image_tag: ${{ secrets.SRV_CAD_IMOVEIS_IMAGE_TAG || 'latest' }} # Adicione este segredo
-      TF_VAR_srv_cad_company_image_tag: ${{ secrets.SRV_CAD_COMPANY_IMAGE_TAG || 'latest' }} # Adicione este segredo
+      TF_VAR_srv_cad_users_image_tag: ${{ secrets.SRV_CAD_USERS_IMAGE_TAG || 'latest' }}
+      TF_VAR_srv_cad_advertisements_image_tag: ${{ secrets.SRV_CAD_ADVERTISEMENTS_IMAGE_TAG || 'latest' }}
+      TF_VAR_srv_cad_company_image_tag: ${{ secrets.SRV_CAD_COMPANY_IMAGE_TAG || 'latest' }}
+      TF_VAR_auth_server_image_tag: ${{ secrets.AUTH_SERVER_IMAGE_TAG || 'latest' }}
 
       # Novas variáveis de ambiente
       TF_VAR_jks_uri: ${{ secrets.JKS_URI }} # Secret para JKS URI
@@ -41,6 +38,8 @@ jobs:
       TF_VAR_spring_log_level: ${{ vars.SPRING_LOG_LEVEL || 'INFO' }} # Usando variável do GitHub
 
       # Outras variáveis podem ser definidas aqui ou via secrets se necessário
+      TF_VAR_client_web_secret: ${{ secrets.CLIENT_WEB_SECRET }}
+      TF_VAR_auth_server_client_secret: ${{ secrets.AUTH_SERVER_CLIENT_SECRET }}
       # TF_VAR_environment: "dev" # Pode ser fixo ou vir de um secret/input do workflow
 
     steps:

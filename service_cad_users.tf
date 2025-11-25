@@ -1,18 +1,18 @@
 locals {
-  srv_cad_usuarios_service_name = "srv-cad-usuarios"
-  srv_cad_usuarios_port         = 8080 # Porta que o container srv-cad-usuarios escuta
+  srv_cad_users_service_name = "srv-cad-users"
+  srv_cad_users_port         = 8080 # Porta que o container srv-cad-users escuta
 }
 
 # Log Group para o serviço
-resource "aws_cloudwatch_log_group" "srv_cad_usuarios" {
-  name              = "/ecs/${local.ecs_cluster_name}/${local.srv_cad_usuarios_service_name}"
+resource "aws_cloudwatch_log_group" "srv_cad_users" {
+  name              = "/ecs/${local.ecs_cluster_name}/${local.srv_cad_users_service_name}"
   retention_in_days = var.log_retention_days
   tags              = local.common_tags
 }
 
 # Definição da Tarefa ECS
-resource "aws_ecs_task_definition" "srv_cad_usuarios" {
-  family                   = "${local.srv_cad_usuarios_service_name}-${var.environment}"
+resource "aws_ecs_task_definition" "srv_cad_users" {
+  family                   = "${local.srv_cad_users_service_name}-${var.environment}"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = "256" 
@@ -22,22 +22,22 @@ resource "aws_ecs_task_definition" "srv_cad_usuarios" {
 
   container_definitions = jsonencode([
     {
-      name      = local.srv_cad_usuarios_service_name
+      name      = local.srv_cad_users_service_name
       # A URI da imagem agora pode ser construída ou ainda vir de uma variável.
       # Se o pipeline da aplicação souber a tag, você pode construir assim:
-      image     = "${aws_ecr_repository.srv_cad_usuarios.repository_url}:${var.srv_cad_usuarios_image_tag}" # Nova variável para a tag
+      image     = "${aws_ecr_repository.srv_cad_users.repository_url}:${var.srv_cad_users_image_tag}" # Nova variável para a tag
       essential = true
       portMappings = [
         {
-          containerPort = local.srv_cad_usuarios_port
-          hostPort      = local.srv_cad_usuarios_port # Em awsvpc, hostPort é igual a containerPort
+          containerPort = local.srv_cad_users_port
+          hostPort      = local.srv_cad_users_port # Em awsvpc, hostPort é igual a containerPort
           protocol      = "tcp"
         }
       ]
       logConfiguration = {
         logDriver = "awslogs"
         options = {
-          "awslogs-group"         = aws_cloudwatch_log_group.srv_cad_usuarios.name
+          "awslogs-group"         = aws_cloudwatch_log_group.srv_cad_users.name
           "awslogs-region"        = var.aws_region
           "awslogs-stream-prefix" = "ecs"
         }
@@ -47,15 +47,13 @@ resource "aws_ecs_task_definition" "srv_cad_usuarios" {
       environment = [
         { name = "SPRING_PROFILES_ACTIVE", value = var.environment }, # Exemplo de outra variável
         { name = "MONGODB_ATLAS_CONNECTION_STRING", value = var.mongodb_atlas_connection_string }, # Usando a string de conexão comum
-        { name = "DB_USER_NAME", value = var.mongodb_database_name_usuarios }, # Alinhado com o nome da app
+        { name = "DB_USER_NAME", value = var.mongodb_database_name_users }, # Alinhado com o nome da app
         { name = "ROOT_LOG_LEVEL", value = var.root_log_level },
-        { name = "SPRING_LOG_LEVEL", value = var.spring_log_level },
-        { name = "AUTH_PRIVATE_KEY", value = var.auth_private_key },
-        { name = "AUTH_PUBLIC_KEY", value = var.auth_public_key }
-        # Se JKS_URI for específico para este serviço e não global, adicione aqui. Se for global e opcional, pode ser omitido se var.jks_uri for null.
+        { name = "SPRING_LOG_LEVEL", value = var.spring_log_level },        
+        { name = "AUTH_SERVER_URL", value = local.auth_server_url }
       ],
       healthCheck = {
-        command     = ["CMD-SHELL", "curl -f http://localhost:${local.srv_cad_usuarios_port}/srv-cad-usuarios/health || exit 1"]
+        command     = ["CMD-SHELL", "curl -f http://localhost:${local.srv_cad_users_port}/srv-cad-users/health || exit 1"]
         interval    = 30
         timeout     = 5
         retries     = 3
@@ -67,14 +65,14 @@ resource "aws_ecs_task_definition" "srv_cad_usuarios" {
 }
 
 # Target Group do ALB
-resource "aws_lb_target_group" "srv_cad_usuarios" {
-  name        = "${local.srv_cad_usuarios_service_name}-${var.environment}"
-  port        = local.srv_cad_usuarios_port
+resource "aws_lb_target_group" "srv_cad_users" {
+  name        = "${local.srv_cad_users_service_name}-${var.environment}"
+  port        = local.srv_cad_users_port
   protocol    = "HTTP"
   vpc_id      = aws_vpc.main.id
   target_type = "ip" # Para Fargate
   health_check {
-    path                = "/srv-cad-usuarios/health" # Alinhar com o endpoint de health da aplicação (ex: @GetMapping("/health"))
+    path                = "/srv-cad-users/health" # Alinhar com o endpoint de health da aplicação (ex: @GetMapping("/health"))
     protocol            = "HTTP"
     interval            = 30
     timeout             = 10
@@ -85,27 +83,27 @@ resource "aws_lb_target_group" "srv_cad_usuarios" {
 }
 
 # Regra do Listener do ALB (ex: roteamento baseado em path)
-resource "aws_lb_listener_rule" "srv_cad_usuarios" {
+resource "aws_lb_listener_rule" "srv_cad_users" {
   listener_arn = aws_lb_listener.http.arn
   priority     = 100 # Prioridade única para cada regra
 
   action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.srv_cad_usuarios.arn
+    target_group_arn = aws_lb_target_group.srv_cad_users.arn
   }
 
   condition {
     path_pattern {
-      values = ["/srv-cad-usuarios*"] # Alinhar com o context-path da aplicação
+      values = ["/srv-cad-users*"] # Alinhar com o context-path da aplicação
     }
   }
 }
 
 # Serviço ECS
-resource "aws_ecs_service" "srv_cad_usuarios" {
-  name            = "${local.srv_cad_usuarios_service_name}-${var.environment}"
+resource "aws_ecs_service" "srv_cad_users" {
+  name            = "${local.srv_cad_users_service_name}-${var.environment}"
   cluster         = aws_ecs_cluster.main.id
-  task_definition = aws_ecs_task_definition.srv_cad_usuarios.arn
+  task_definition = aws_ecs_task_definition.srv_cad_users.arn
   desired_count   = 1 # Número desejado de tarefas
   launch_type     = "FARGATE"
   health_check_grace_period_seconds = 120
@@ -116,15 +114,15 @@ resource "aws_ecs_service" "srv_cad_usuarios" {
   }
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.srv_cad_usuarios.arn
-    container_name   = local.srv_cad_usuarios_service_name
-    container_port   = local.srv_cad_usuarios_port
+    target_group_arn = aws_lb_target_group.srv_cad_users.arn
+    container_name   = local.srv_cad_users_service_name
+    container_port   = local.srv_cad_users_port
   }
 
   # Para evitar problemas de "InvalidParameterException: The new task definition does not support the launch type specified"
   # durante atualizações, pode ser necessário um lifecycle block.
   # Ou garantir que a task definition sempre seja compatível.
-  # depends_on = [aws_lb_listener_rule.srv_cad_usuarios] # Garante que a regra do listener exista
+  # depends_on = [aws_lb_listener_rule.srv_cad_users] # Garante que a regra do listener exista
   deployment_circuit_breaker {
     enable   = true
     rollback = false # Se a implantação falhar, não reverte (para as tentativas com a versão atual)

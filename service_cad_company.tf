@@ -44,10 +44,9 @@ resource "aws_ecs_task_definition" "srv_cad_company" {
         { name = "SPRING_PROFILES_ACTIVE", value = var.environment },
         { name = "DYNAMODB_CAD_COMPANY_TABLE", value = var.dynamodb_db_cad_company_table_name }, # Alinhado com o nome da app
         { name = "AWS_REGION", value = var.aws_region }, # Para o SDK AWS
-        # AWS_ACCESS_KEY_ID e AWS_SECRET_ACCESS_KEY NÃO DEVEM SER USADOS AQUI. A role da tarefa fornecerá as credenciais.
-        { name = "JKS_URI", value = var.jks_uri }, # Adicionado JKS_URI
         { name = "ROOT_LOG_LEVEL", value = var.root_log_level },
-        { name = "SPRING_LOG_LEVEL", value = var.spring_log_level } # Mantido
+        { name = "SPRING_LOG_LEVEL", value = var.spring_log_level },
+        { name = "AUTH_SERVER_URL", value = local.auth_server_url }
       ]
       healthCheck = {
         command     = ["CMD-SHELL", "curl -f http://localhost:${local.srv_cad_company_port}/srv-cad-company/health || exit 1"]
