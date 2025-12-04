@@ -44,7 +44,7 @@ resource "aws_ecs_task_definition" "auth_server" {
         { name = "SPRING_PROFILES_ACTIVE", value = var.environment },
         { name = "ROOT_LOG_LEVEL", value = var.root_log_level },
         { name = "SPRING_LOG_LEVEL", value = var.spring_log_level },
-        { name = "AUTH_SERVER_URL", value = local.auth_server_url }, # Usado para o issuer-uri
+        { name = "AUTH_SERVER_URL", value = var.public_auth_server_url }, # Usa a URL pública para o issuer-uri
         # AUTH_SERVER_EXTERNAL_URL não parece ser usado no application.properties, mas pode ser útil manter para outros contextos.
         # Se não for usado, pode ser removido.
         { name = "USER_API_BASE_URL", value = local.user_api_base_url },

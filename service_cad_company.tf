@@ -42,7 +42,7 @@ resource "aws_ecs_task_definition" "srv_cad_company" {
       }
       environment = [
         { name = "SPRING_PROFILES_ACTIVE", value = var.environment },
-        { name = "DYNAMODB_CAD_COMPANY_TABLE", value = var.dynamodb_db_cad_company_table_name }, # Alinhado com o nome da app
+        { name = "DYNAMODB_CAD_COMPANY_TABLE", value = var.db_cad_company_table_name }, # Usa a variável padronizada
         { name = "AWS_REGION", value = var.aws_region }, # Para o SDK AWS
         { name = "ROOT_LOG_LEVEL", value = var.root_log_level },
         { name = "SPRING_LOG_LEVEL", value = var.spring_log_level },

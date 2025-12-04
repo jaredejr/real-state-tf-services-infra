@@ -72,7 +72,7 @@ variable "log_retention_days" {
   default     = 7
 }
 
-variable "dynamodb_db_cad_company_table_name" {
+variable "db_cad_company_table_name" {
   description = "Nome da tabela DynamoDB 'db-cad-company' a ser usada pelos serviços Java."
   type        = string
   # Este valor será fornecido externamente, por exemplo, via -var ou um arquivo .tfvars
@@ -124,4 +124,10 @@ variable "jks_uri" {
   type        = string
   default     = null # Torna opcional, fornecer via secret se necessário
   sensitive   = true # JKS pode conter chaves privadas
+}
+
+variable "public_auth_server_url" {
+  description = "A URL pública do auth-server, usada para o issuer-uri do OIDC."
+  type        = string
+  # Ex: "https://auth.dev.meudominio.com"
 }

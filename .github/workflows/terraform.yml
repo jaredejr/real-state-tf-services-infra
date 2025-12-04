@@ -40,6 +40,7 @@ jobs:
       # Outras variáveis podem ser definidas aqui ou via secrets se necessário
       TF_VAR_client_web_secret: ${{ secrets.CLIENT_WEB_SECRET }}
       TF_VAR_auth_server_client_secret: ${{ secrets.AUTH_SERVER_CLIENT_SECRET }}
+      TF_VAR_public_auth_server_url: ${{ secrets.PUBLIC_AUTH_SERVER_URL }} # Adiciona a URL pública do auth-server
       # TF_VAR_environment: "dev" # Pode ser fixo ou vir de um secret/input do workflow
 
     steps:
@@ -55,7 +56,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: "~1.12.1" # Ou a versão do Terraform CLI que você deseja usar (ex: ~1.12.1)
+          terraform_version: "1.8.0" # Usando uma versão mais recente e estável
 
       - name: Terraform Init
         run: terraform init

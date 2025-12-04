@@ -60,30 +60,25 @@ resource "aws_iam_role" "ecs_srv_cad_company_task_role" {
   tags = local.common_tags
 }
 
-# Política para permitir acesso à tabela DynamoDB db-cad-company
-data "aws_iam_policy_document" "ecs_dynamodb_cad_company_access" {
-  statement {
-    actions = [
-      "dynamodb:GetItem",
-      "dynamodb:PutItem",
-      "dynamodb:UpdateItem",
-      "dynamodb:DeleteItem",
-      "dynamodb:Query",
-      "dynamodb:Scan",
-      "dynamodb:DescribeTable"
-    ]
-    resources = [
-      "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/${var.dynamodb_db_cad_company_table_name}",
-      # Permite acesso a todos os índices da tabela. Para ser mais específico, você pode usar /index/GSI1
-      "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/${var.dynamodb_db_cad_company_table_name}/index/*"
-    ]
-  }
-}
-
 resource "aws_iam_policy" "ecs_dynamodb_cad_company_access" {
   name        = "${var.project_name}-ecs-dynamodb-cad-company-policy-${var.environment}"
   description = "Permite que as tarefas ECS acessem a tabela DynamoDB db-cad-company"
-  policy      = data.aws_iam_policy_document.ecs_dynamodb_cad_company_access.json
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = [
+          "dynamodb:GetItem", "dynamodb:PutItem", "dynamodb:UpdateItem",
+          "dynamodb:DeleteItem", "dynamodb:Query", "dynamodb:Scan", "dynamodb:DescribeTable"
+        ],
+        Effect   = "Allow",
+        Resource = [
+          data.terraform_remote_state.dynamodb.outputs.db_cad_company_table_arn,
+          "${data.terraform_remote_state.dynamodb.outputs.db_cad_company_table_arn}/index/*"
+        ]
+      }
+    ]
+  })
 }
 
 # Anexa a política de acesso ao DynamoDB APENAS à role específica do srv-cad-company
@@ -92,24 +87,22 @@ resource "aws_iam_role_policy_attachment" "ecs_srv_cad_company_dynamodb_access" 
   policy_arn = aws_iam_policy.ecs_dynamodb_cad_company_access.arn
 }
 
-# Política para permitir ECS Exec (SSM Session Manager)
-data "aws_iam_policy_document" "ecs_exec_policy_document" {
-  statement {
-    effect = "Allow"
-    actions = [
-      "ssmmessages:CreateControlChannel",
-      "ssmmessages:CreateDataChannel",
-      "ssmmessages:OpenControlChannel",
-      "ssmmessages:OpenDataChannel"
-    ]
-    resources = ["*"] # Necessário para ECS Exec
-  }
-}
-
 resource "aws_iam_policy" "ecs_exec_policy" {
   name        = "${var.project_name}-ecs-exec-policy-${var.environment}"
   description = "Permite que as tarefas ECS usem o ECS Exec via SSM Session Manager"
-  policy      = data.aws_iam_policy_document.ecs_exec_policy_document.json
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "ssmmessages:CreateControlChannel", "ssmmessages:CreateDataChannel",
+          "ssmmessages:OpenControlChannel", "ssmmessages:OpenDataChannel"
+        ],
+        Resource = "*"
+      }
+    ]
+  })
 }
 
 resource "aws_iam_role_policy_attachment" "generic_task_role_ecs_exec" {
